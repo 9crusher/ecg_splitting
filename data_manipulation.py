@@ -1,6 +1,10 @@
 import pandas as pd
 import numpy as np
 import os
+import matplotlib.pyplot as plt 
+from matplotlib.pyplot import figure
+from scipy.signal import argrelextrema
+from sklearn.preprocessing import normalize
 
 def get_peaks(record):
     max_peak = np.amax(record)
@@ -12,7 +16,7 @@ def get_peaks(record):
 
 def make_splits(record, split_indeces):
     raw_splits = np.split(record, split_indeces)[1:-1]
-    padding = np.zeros((len(raw_splits), 900))
+    return raw_splits
 
 # Filter out annotations that are not in our csv's directory
 csv_files = []
@@ -30,13 +34,22 @@ for cat in abnormal_categories:
 df_annotations = df_annotations[df_annotations[abnormal_categories].all(axis=1)]
 for cat in abnormal_categories:
     df_annotations[cat] = (df_annotations[cat] - 1).abs()
-
-for f in df_annotations['FileNames']:
+all_lines = []
+for f in df_annotations['FileName']:
     record = normalize(pd.read_csv('./records/' + f).values, axis=0)[:, 1]
     r_peak_indeces, r_peak_values = get_peaks(record)
-    split_points = []
-    for i in range(len(r_peak_indeces)-1):
-        split_points.append((r_peak_indeces[i] + r_peak_indeces[i+1]) // 2)
-    splits = make_splits(record, split_points)
+    try:
+        max_distance = np.amax(np.diff(r_peak_indeces))
+        if max_distance >500 and max_distance < 900:
+            split_points = []
+            for i in range(len(r_peak_indeces)-1):
+                split_points.append((r_peak_indeces[i] + r_peak_indeces[i+1]) // 2)
+            splits = make_splits(record, split_points)
+            for split in splits:
+                all_lines.append(np.pad(split, (0, 900-len(split)), 'constant'))
+    except:
+        print('fail')
+
+np.savetxt('splits.csv', np.array(all_lines), delimiter=',')
 
 
