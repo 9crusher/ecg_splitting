@@ -26,7 +26,7 @@ def get_normal_records():
 
 def get_splits(record):
     max_peak = np.amax(record)
-    thresh = max_peak - (.25 * max_peak)
+    thresh = max_peak - (.35 * max_peak)
     local_maxima = argrelextrema(record, np.greater)[0]
     r_peak_indeces = local_maxima[record[local_maxima] > thresh]
     r_peak_values = record[r_peak_indeces]
@@ -47,8 +47,8 @@ def get_reasonable_splits():
             print('fail')
     return reasonable_files
 
-
-
+def make_splits(record, split_indeces):
+    return np.split(record, split_indeces)[1:-1]
 
 
 
@@ -56,11 +56,22 @@ files = get_reasonable_splits()
 for f in files:
     record = normalize(pd.read_csv('./records/' + f).values, axis=0)[:, 1]
     r_peak_indeces, r_peak_values = get_splits(record)
+    # Find split point
+    split_points = []
+    for i in range(len(r_peak_indeces)-1):
+        split_points.append((r_peak_indeces[i] + r_peak_indeces[i+1]) // 2)
+
+    print(split_points)
     figure(figsize=(80, 10))
     plt.plot(np.arange(len(record)), record)
     plt.scatter(r_peak_indeces, r_peak_values, c='red')
     plt.savefig('images/{0}_graph.png'.format(f))
+    plt.clf()
+    splits = make_splits(record, split_points)
+    for i in range(len(splits)):
+        plt.plot(np.arange(len(splits[i])), splits[i])
+        plt.savefig('images/{0}_split_{1}_graph.png'.format(f, i))
+        plt.clf()
 
 
-# Make graph
 
