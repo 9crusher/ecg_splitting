@@ -2,4 +2,4 @@ records/
 images/
 attributes.xlsx
 ~$attributes.xlsx
-splits.csv
+*.csv

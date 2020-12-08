@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 from scipy.signal import argrelextrema
 from sklearn.preprocessing import normalize
+from sklearn.model_selection import train_test_split
 
 def get_peaks(record):
     max_peak = np.amax(record)
@@ -50,6 +51,9 @@ for f in df_annotations['FileName']:
     except:
         print('fail')
 
-np.savetxt('splits.csv', np.array(all_lines), delimiter=',')
+train, test = train_test_split(np.array(all_lines), test_size=0.2)
+
+np.savetxt('train_clean_split.csv', train, delimiter=',')
+np.savetxt('test_clean_split.csv', test, delimiter=',')
 
 
