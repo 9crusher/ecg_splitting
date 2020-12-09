@@ -1,6 +1,8 @@
 records/
 images/
-attributes.xlsx
-~$attributes.xlsx
+__pycache__/
+*.xlsx
+*.xlsx
 *.csv
+*.csv#
 *.png

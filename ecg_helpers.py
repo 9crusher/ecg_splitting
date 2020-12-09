@@ -22,7 +22,7 @@ def load_ecg(csv_path, normalize_data=True):
     return record
 
 
-def split_ecg(ecg_lead, length=900, r_peak_search_threshold=0.35):
+def split_ecg(ecg_lead, length=800, r_peak_search_threshold=0.35):
     '''
     Splits an ecg lead into individual wave forms. Cuts are made between T and P waves.
 
@@ -42,13 +42,32 @@ def split_ecg(ecg_lead, length=900, r_peak_search_threshold=0.35):
     max_peak = np.amax(ecg_lead)
     thresh = max_peak - (r_peak_search_threshold * max_peak)
     local_maxima = argrelextrema(ecg_lead, np.greater)[0]
+    filtered_local_maxima = []
+    for i in range(len(local_maxima)):
+        point_height =  ecg_lead[local_maxima[i]]
+        previous_point_height = 0
+        next_point_height = 0
+        if i - 1 > -1:
+            previous_point_height = ecg_lead[local_maxima[i -1]]
+        if i + 1 < len(local_maxima):
+            next_point_height = ecg_lead[local_maxima[i + 1]]
+        if point_height > previous_point_height and point_height > next_point_height:
+            filtered_local_maxima.append(local_maxima[i])
+
+    local_maxima = np.array(filtered_local_maxima)
+
     r_peak_indeces = local_maxima[ecg_lead[local_maxima] > thresh]
     # Validate that the split was reasonable and meets criteria
     try:
         max_distance = np.amax(np.diff(r_peak_indeces))
     except:
+        print('max dist fetch fail')
+        print(r_peak_indeces)
         return np.array([])
-    if max_distance < 350 or max_distance > length:
+    if max_distance < 300 or max_distance > length:
+        print('max dist criteria fail')
+        print(r_peak_indeces)
+        print(max_distance)
         return np.array([])
     # Find points on which to split
     split_points = []
@@ -58,7 +77,7 @@ def split_ecg(ecg_lead, length=900, r_peak_search_threshold=0.35):
     # Make splits
     all_lines = []
     for split in raw_splits:
-        all_lines.append(np.pad(split, (0, 900-len(split)), 'constant'))
+        all_lines.append(np.pad(split, (0, length-len(split)), 'constant'))
     return np.array(all_lines)
 
 
