@@ -8,10 +8,11 @@ import os
 def plot_and_split(files, dest_dir='./images/', csv_dir='./records/'):
     all_splits = []
     for f in files:
+        print(f)
         record_name = ''.join(f.split('.')[:-1])
         lead_2 = ecg.load_ecg(csv_dir + f)[:, 1]
         ecg.plot_ecg(lead_2, dest_dir + 'original_{0}.png'.format(record_name))
-        splits = ecg.split_ecg(lead_2, r_peak_search_threshold=0.3, length=750)
+        splits = ecg.split_ecg(lead_2, r_peak_search_threshold=0.5, length=750)
         ecg.plot_ecg_splits(splits, dest_dir + 'split_{0}'.format(record_name))
         all_splits.extend(splits)
     return np.array(all_splits)

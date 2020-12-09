@@ -41,17 +41,12 @@ def split_ecg(ecg_lead, length=800, r_peak_search_threshold=0.35):
     # Find indeces of R peaks
     max_peak = np.amax(ecg_lead)
     thresh = max_peak - (r_peak_search_threshold * max_peak)
-    local_maxima = argrelextrema(ecg_lead, np.greater)[0]
+    local_maxima = argrelextrema(ecg_lead, np.greater, order=50)[0]
     filtered_local_maxima = []
     for i in range(len(local_maxima)):
         point_height =  ecg_lead[local_maxima[i]]
-        previous_point_height = 0
-        next_point_height = 0
-        if i - 1 > -1:
-            previous_point_height = ecg_lead[local_maxima[i -1]]
-        if i + 1 < len(local_maxima):
-            next_point_height = ecg_lead[local_maxima[i + 1]]
-        if point_height > previous_point_height and point_height > next_point_height:
+        if np.amax(ecg_lead[local_maxima][max(0, i-1):i+2]) == point_height:
+            print(ecg_lead[local_maxima][max(0, i-1):i+2])
             filtered_local_maxima.append(local_maxima[i])
 
     local_maxima = np.array(filtered_local_maxima)
