@@ -22,7 +22,7 @@ def load_ecg(csv_path, normalize_data=True):
     return record
 
 
-def split_ecg(ecg_lead, length=800, r_peak_search_threshold=0.35):
+def split_ecg(ecg_lead, length=700, r_peak_search_threshold=0.35, min_dist=400):
     '''
     Splits an ecg lead into individual wave forms. Cuts are made between T and P waves.
 
@@ -46,7 +46,7 @@ def split_ecg(ecg_lead, length=800, r_peak_search_threshold=0.35):
     for i in range(len(local_maxima)):
         point_height =  ecg_lead[local_maxima[i]]
         if np.amax(ecg_lead[local_maxima][max(0, i-1):i+2]) == point_height:
-            print(ecg_lead[local_maxima][max(0, i-1):i+2])
+            #print(ecg_lead[local_maxima][max(0, i-1):i+2])
             filtered_local_maxima.append(local_maxima[i])
 
     local_maxima = np.array(filtered_local_maxima)
@@ -56,18 +56,13 @@ def split_ecg(ecg_lead, length=800, r_peak_search_threshold=0.35):
     try:
         max_distance = np.amax(np.diff(r_peak_indeces))
     except:
-        print('max dist fetch fail')
-        print(r_peak_indeces)
         return np.array([])
-    if max_distance < 300 or max_distance > length:
-        print('max dist criteria fail')
-        print(r_peak_indeces)
-        print(max_distance)
+    if max_distance < min_dist or max_distance > length:
         return np.array([])
     # Find points on which to split
     split_points = []
     for i in range(len(r_peak_indeces)-1):
-        split_points.append((r_peak_indeces[i] + r_peak_indeces[i+1]) // 2)
+        split_points.append((r_peak_indeces[i] + r_peak_indeces[i+1]) // 2) #+ int(abs(r_peak_indeces[i] - r_peak_indeces[i+1]) * .125))
     raw_splits = np.split(ecg_lead, split_points)[1:-1]
     # Make splits
     all_lines = []
@@ -128,3 +123,6 @@ def plot_ecg_splits(ecg_lead_splits, output_file, label='ECG Splits'):
         plt.title(label)
         offset += len(split)
     plt.savefig(output_file)
+
+def get_filenames_with_attributes(records_directory, attributes_file, required_attributes=[], denied_attributes=[]):
+    pass
