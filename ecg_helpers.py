@@ -4,6 +4,7 @@ from sklearn.preprocessing import normalize
 from scipy.signal import argrelextrema
 import numpy as np 
 import pandas as pd 
+from scipy.signal import butter, sosfiltfilt
 
 
 def load_ecg(csv_path, normalize_data=True):
@@ -19,6 +20,7 @@ def load_ecg(csv_path, normalize_data=True):
     record = pd.read_csv(csv_path).values
     if normalize_data:
         record = normalize(record, axis=0)
+
     return record
 
 
@@ -124,5 +126,11 @@ def plot_ecg_splits(ecg_lead_splits, output_file, label='ECG Splits'):
         offset += len(split)
     plt.savefig(output_file)
 
-def get_filenames_with_attributes(records_directory, attributes_file, required_attributes=[], denied_attributes=[]):
-    pass
+def hi_lo_filter(sig):
+        # high pass
+        hp = butter(2, 2, 'hp', fs=1000, output='sos')
+        sig = sosfiltfilt(hp, sig)
+        # low pass
+        lp = butter(2, 25, 'lp', fs=1000, output='sos')
+        sig = sosfiltfilt(lp, sig)
+        return sig

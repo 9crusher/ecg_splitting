@@ -8,7 +8,6 @@ import os
 def plot_and_split(files, dest_dir='./images/', csv_dir='./records/'):
     all_splits = []
     for f in files:
-        print(f)
         record_name = ''.join(f.split('.')[:-1])
         lead_2 = ecg.load_ecg(csv_dir + f)[:, 1]
         ecg.plot_ecg(lead_2, dest_dir + 'original_{0}.png'.format(record_name))
