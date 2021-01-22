@@ -40,7 +40,7 @@ def validation(attributes, hdf5_path):
 
 
 def afib_mapper(df_annotations):
-    required_annotations = ['FileName', 'AFib', 'LAA', 'CorSinus', 'Erratic', 'PAC', 'AFlut']
+    required_annotations = ['FileName', 'AFib']
     df_annotations = df_annotations[required_annotations]
     df_annotations = df_annotations.dropna()
     return df_annotations
