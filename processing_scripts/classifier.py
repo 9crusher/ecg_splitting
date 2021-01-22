@@ -6,6 +6,7 @@
 # test_annotations.csv -- A csv file with annotations for the test.hdf5 file
 
 import argparse
+import random
 import h5py
 import os, sys, inspect
 sys.path.insert(0,os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))) 
@@ -19,7 +20,7 @@ CSV_DIRECTORY = '../records/'
 ANNOTATIONS_FILE = '../attributes.csv'
 OUTPUT_DIRECTORY = '../'
 
-def print_validation(attributes, hdf5_path):
+def validation(attributes, hdf5_path):
     # Print top 20 rows of the attributes df
     pd.options.display.max_columns = None
     pd.options.display.max_rows = None
@@ -31,6 +32,10 @@ def print_validation(attributes, hdf5_path):
     print('\nHDF5 contents:')
     f = h5py.File(hdf5_path, 'r')
     print(f['tracings'][0:20, 0:2])
+
+    # Graph three samples from the hdf5
+    for i in range(3):
+        ecg.plot_ecg(f['tracings'][random.randint(0,len(f['tracings']) - 1)], OUTPUT_DIRECTORY + 'random' + str(i), hdf5_path)
     f.close()
 
 
@@ -80,4 +85,4 @@ print('Done')
 
 # Print section of outputs to validate data integrity
 print("Validate test data:")
-print_validation(df_test, OUTPUT_DIRECTORY + "test.hdf5")
+validation(df_test, OUTPUT_DIRECTORY + "test.hdf5")

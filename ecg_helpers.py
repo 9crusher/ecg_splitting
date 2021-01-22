@@ -104,10 +104,10 @@ def split_ecg(ecg_lead, length=700, r_peak_search_threshold=0.35, min_dist=400):
 def hi_lo_filter(sig):
         # high pass
         hp = butter(2, 2, 'hp', fs=1000, output='sos')
-        sig = sosfiltfilt(hp, sig)
+        sig = sosfiltfilt(hp, sig, axis=0)
         # low pass
         lp = butter(2, 25, 'lp', fs=1000, output='sos')
-        sig = sosfiltfilt(lp, sig)
+        sig = sosfiltfilt(lp, sig, axis=0)
         return sig
 
 ############################################################################################################################################################
@@ -131,11 +131,11 @@ def plot_ecg(ecg_record, output_file, label='ECG'):
     plt.clf()
     x_axis = np.arange(len(ecg_record))
     if ecg_record.ndim == 2:
-        fig, axs = plt.subplots(ecg_record.shape[1], figsize=(80, 50))
+        fig, axs = plt.subplots(ecg_record.shape[1], figsize=(100, 100))
         for i in range(len(axs)):
             axs[i].plot(x_axis, ecg_record[:, i])
             axs[i].set_title('Lead {0}'.format(i))
-        fig.title(label)
+        fig.suptitle(label, fontsize=16)
         fig.savefig(output_file)
    
     else:
