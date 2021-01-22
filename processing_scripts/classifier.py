@@ -72,10 +72,10 @@ print('Train length: ' + str(len(df_train)))
 used_cols = df_annotations.columns[df_annotations.columns != 'FileName']
 print('Making test files')
 df_test.to_csv(OUTPUT_DIRECTORY + 'test_annotations.csv', columns=used_cols, index=False)
-ecg.write_hdf5(np.array([ecg.load_ecg(CSV_DIRECTORY + fi) for fi in df_test['FileName']]), OUTPUT_DIRECTORY + "test.hdf5")
+ecg.write_hdf5(np.array([ecg.hi_lo_filter(ecg.load_ecg(CSV_DIRECTORY + fi)[:, 1]) for fi in df_test['FileName']]), OUTPUT_DIRECTORY + "test.hdf5")
 print('Making train files')
 df_train.to_csv(OUTPUT_DIRECTORY + 'train_annotations.csv', columns=used_cols, index=False)
-ecg.write_hdf5(np.array([ecg.load_ecg(CSV_DIRECTORY + fi) for fi in df_train['FileName']]), OUTPUT_DIRECTORY + "train.hdf5")
+ecg.write_hdf5(np.array([ecg.hi_lo_filter(ecg.load_ecg(CSV_DIRECTORY + fi)[:, 1]) for fi in df_train['FileName']]), OUTPUT_DIRECTORY + "train.hdf5")
 print('Done')
 
 # Print section of outputs to validate data integrity
