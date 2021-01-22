@@ -4,6 +4,7 @@
 # test.hdf5 -- A 3d hdf5 file with a test "tracings" dataset in shape (<individual_ecg_test_results>, <ecg_samples>, <leads>)
 # train_annotations.csv -- A csv file with annotations for the train.hdf5 file
 # test_annotations.csv -- A csv file with annotations for the test.hdf5 file
+# pylint: disable=import-error
 
 import argparse
 import random
@@ -16,9 +17,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 import ecg_helpers as ecg
 
-CSV_DIRECTORY = '../records/'
+CSV_DIRECTORY = '/data/mcw_ecg/Nick of Time Records/Nick of Time Records/'
 ANNOTATIONS_FILE = '../attributes.csv'
-OUTPUT_DIRECTORY = '../'
+OUTPUT_DIRECTORY = '../../mcw_ecg/data/'
 
 def validation(attributes, hdf5_path):
     # Print top 20 rows of the attributes df
@@ -60,7 +61,6 @@ def blood_pressure_mapper(df_annotations):
     df_annotations['High2'] = (df_annotations['High2'] - df_annotations['High3']).clip(lower=0)
     df_annotations['High1'] = (df_annotations['High1'] - (df_annotations['High2'] + df_annotations['High3'])).clip(lower=0)
     return df_annotations[['FileName', 'Normal', 'Elevated', 'High1', 'High2', 'High3']]
-
 
 
 # Load annotations file and use selected mapper

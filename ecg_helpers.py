@@ -19,6 +19,7 @@ def load_annotations(annotations_file, csv_dir):
     csv_files = []
     for (dirpath, dirnames, filenames) in walk(csv_dir):
         csv_files.extend(filenames)
+    print(len(csv_files))
     df_existing_files = pd.DataFrame({'ExistingFileName': csv_files})
     df_annotations = df_annotations.merge(df_existing_files, left_on='FileName', right_on='ExistingFileName', how='inner')
     df_annotations = df_annotations.drop(['ExistingFileName'], axis=1)

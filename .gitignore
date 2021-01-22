@@ -1,5 +1,6 @@
 records/
 images/
+datagen_env/
 __pycache__/
 *.xlsx
 *.xlsx
