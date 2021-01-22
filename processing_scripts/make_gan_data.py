@@ -28,7 +28,7 @@ for cat in abnormal_categories:
 # Make segments
 segments = []
 for filename in df_annotations['FileName']:
-    data = ecg.load_ecg('./records/' + filename)[:, 1][250:-250]
+    data = ecg.load_ecg('../records/' + filename)[:, 1][250:-250]
     data = ecg.hi_lo_filter(data)
     segments.append(data)
 

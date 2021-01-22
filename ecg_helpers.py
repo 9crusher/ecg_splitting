@@ -5,6 +5,24 @@ from scipy.signal import argrelextrema
 import numpy as np 
 import pandas as pd 
 from scipy.signal import butter, sosfiltfilt
+import h5py
+from os import walk
+
+
+###########################################################################################################################################################
+##########################################################################IO###############################################################################
+
+def load_annotations(annotations_file, csv_dir):
+    df_annotations = pd.read_csv(annotations_file) if annotations_file.endswith('.csv') else pd.read_excel(annotations_file) 
+
+    # Ensure all annotations file names are linked to an ECG
+    csv_files = []
+    for (dirpath, dirnames, filenames) in walk(csv_dir):
+        csv_files.extend(filenames)
+    df_existing_files = pd.DataFrame({'ExistingFileName': csv_files})
+    df_annotations = df_annotations.merge(df_existing_files, left_on='FileName', right_on='ExistingFileName', how='inner')
+    df_annotations = df_annotations.drop(['ExistingFileName'], axis=1)
+    return df_annotations
 
 
 def load_ecg(csv_path, normalize_data=True):
@@ -20,9 +38,17 @@ def load_ecg(csv_path, normalize_data=True):
     record = pd.read_csv(csv_path).values
     if normalize_data:
         record = normalize(record, axis=0)
-
     return record
 
+
+def write_hdf5(ecgs, filename):
+    f = h5py.File(filename, "w")
+    f.create_dataset('tracings', ecgs.shape, dtype='float32', data=ecgs)
+    f.close()
+
+
+##################################################################################################################################################################
+##########################################################################Splitting###############################################################################
 
 def split_ecg(ecg_lead, length=700, r_peak_search_threshold=0.35, min_dist=400):
     '''
@@ -72,6 +98,20 @@ def split_ecg(ecg_lead, length=700, r_peak_search_threshold=0.35, min_dist=400):
         all_lines.append(np.pad(split, (0, length-len(split)), 'constant'))
     return np.array(all_lines)
 
+###########################################################################################################################################################
+##########################################################################FILTERS##########################################################################
+
+def hi_lo_filter(sig):
+        # high pass
+        hp = butter(2, 2, 'hp', fs=1000, output='sos')
+        sig = sosfiltfilt(hp, sig)
+        # low pass
+        lp = butter(2, 25, 'lp', fs=1000, output='sos')
+        sig = sosfiltfilt(lp, sig)
+        return sig
+
+############################################################################################################################################################
+##########################################################################Plotting##########################################################################
 
 def plot_ecg(ecg_record, output_file, label='ECG'):
     '''
@@ -125,12 +165,3 @@ def plot_ecg_splits(ecg_lead_splits, output_file, label='ECG Splits'):
         plt.title(label)
         offset += len(split)
     plt.savefig(output_file)
-
-def hi_lo_filter(sig):
-        # high pass
-        hp = butter(2, 2, 'hp', fs=1000, output='sos')
-        sig = sosfiltfilt(hp, sig)
-        # low pass
-        lp = butter(2, 25, 'lp', fs=1000, output='sos')
-        sig = sosfiltfilt(lp, sig)
-        return sig

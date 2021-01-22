@@ -1,11 +1,13 @@
 import pandas as pd 
 import numpy as np 
-import ecg_helpers as ecg
 import os
+#Add parent dir to module search path
+sys.path.insert(0,os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))) 
+import ecg_helpers as ecg
 
 
 
-def plot_and_split(files, dest_dir='./images/', csv_dir='./records/'):
+def plot_and_split(files, dest_dir='../images/', csv_dir='../records/'):
     all_splits = []
     for f in files:
         record_name = ''.join(f.split('.')[:-1])
@@ -17,7 +19,7 @@ def plot_and_split(files, dest_dir='./images/', csv_dir='./records/'):
     return np.array(all_splits)
 
 csv_files = []
-for (dirpath, dirnames, filenames) in os.walk('./records/'):
+for (dirpath, dirnames, filenames) in os.walk('../records/'):
     csv_files.extend(filenames)
 df_annotations = pd.read_csv('./new_attributes.csv')
 df_existing_files = pd.DataFrame({'ExistingFileName': csv_files})
